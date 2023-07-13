@@ -1,5 +1,6 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<stdbool.h>
 #include "AVLTrees.h"
 
 //Helper functions
@@ -20,15 +21,35 @@ void initializeTree(Tree *T){
 
 //sab just want to know who's the tallest 
 int highestHeight(Tree x, Tree y){
-	return(x->height > y->height)? x->height: y->height;
+	int xHeight, yHeight;
+	xHeight = (x!=NULL)?x->height:0;
+	yHeight = (y!=NULL)?y->height:0;
+	return (xHeight>yHeight)?xHeight:yHeight;
 }
 
 //to get the height difference between siblings
 int heightDifference(Tree T){
-	return (T->LC->height) - (T->RC->height);
+	int leftSubTreeHeight, rightSubTreeHeight;
+	leftSubTreeHeight = (T->LC != NULL)? T->LC->height: 0;
+	rightSubTreeHeight = (T->RC != NULL)? T->RC->height: 0;
+	return (leftSubTreeHeight) - (rightSubTreeHeight);
 }
-////sab is still dumb so she does not know how to do this
-//void balanceAVL(Tree *T);
+//sab is still dumb so she does not know how to do this
+void balanceAVL(Tree *T){
+	int diff = heightDifference(*T);
+	
+	if(diff > 1){
+		if(heightDifference((*T)->LC) < 0){
+			leftRotate(&(*T)->LC);
+		}
+		rightRotate(T);
+	}else if(diff < -1){
+		if(heightDifference((*T)->RC) > 0){
+			rightRotate(&(*T)->RC);
+		}
+		leftRotate(T);
+	}
+}
 
 //Rotations
 
@@ -39,7 +60,7 @@ void leftRotate(Tree *T){
 	Tree temp = trav->LC;
 	
 	//rotation process (LORD PLEASE HELP IDK IF IM DOING IT RIGHT)
-	temp = *T;
+	trav->LC = (*T);
 	(*T)->RC = temp;
 	
 	//increase height by adding using the highest height function
@@ -57,7 +78,7 @@ void rightRotate(Tree *T){
 	Tree temp = trav->RC;
 	
 	//rotation process 
-	temp = *T;
+	trav->RC = (*T);
 	(*T)->LC = temp;
 	
 	//increase height by adding using the highest height function
@@ -69,22 +90,25 @@ void rightRotate(Tree *T){
 
 //Tree Traversals
 void preOrder(Tree T){
-	printf("Preorder traversal:\n");
-	printf("%d", T->elem);
-	preOrder(T->LC);
-	preOrder(T->RC);
+	if(T != NULL){
+		printf("%d", T->elem);
+		preOrder(T->LC);
+		preOrder(T->RC);
+	}
 }
 void inOrder(Tree T){
-	printf("Inorder traversal:\n");
-	inOrder(T->LC);
-	printf("%d",T->elem);
-	inOrder(T->RC);
+	if(T != NULL){
+		inOrder(T->LC);
+		printf("%d",T->elem);
+		inOrder(T->RC);
+	}
 }
 void postOrder(Tree T){
-	printf("Postorder traversal:\n");
-	postOrder(T->LC);
-	postOrder(T->RC);
-	printf("%d\n",T->elem);
+	if(T != NULL){
+		postOrder(T->LC);
+		postOrder(T->RC);
+		printf("%d\n",T->elem);
+	}
 }
 
 //Operations
@@ -104,7 +128,7 @@ void insertElement(Tree *T, int item){
 		(*T)->height = highestHeight((*T)->LC, (*T)->RC) + 1;
 	}
 	
-//	balanceAVL(T); pero wala pani nga code so standby sah
+	balanceAVL(T); 
 	
 }
 void deleteElement(Tree *T, int item);
